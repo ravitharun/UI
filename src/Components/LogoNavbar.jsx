@@ -10,7 +10,7 @@ import {
   FiChevronUp,
 } from "react-icons/fi";
 import secureLocalStorage from "react-secure-storage";
-import { UserLogin } from "../Apis/Islogin";
+import { UserLogin, UserName } from "../Apis/Islogin";
 import UserisLogin from "./UserisLogin";
 function LogoNavbar({ hide }) {
   const [openProfile, setOpenProfile] = useState(false);
@@ -24,7 +24,6 @@ function LogoNavbar({ hide }) {
       return navigate("/login")
     }
   }
-
 
 
   // Hide LogoNavbar if parent says so
@@ -53,8 +52,16 @@ function LogoNavbar({ hide }) {
               className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-gray-100 cursor-pointer"
             >
               <FiUser className="text-gray-700" />
-              <span className="text-sm font-medium bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                HI, Ravi Tharun
+              <span
+                className="
+    text-sm font-medium
+    bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500
+    bg-[length:200%_200%]
+    bg-clip-text text-transparent
+    animate-gradient
+  "
+              >
+                HI, {UserName.name}
               </span>
 
               {openProfile ? <FiChevronUp className="text-gray-500" /> : <FiChevronDown className="text-gray-500" />}
@@ -79,7 +86,7 @@ function LogoNavbar({ hide }) {
                 <button
                   className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                   onClick={Logout}
-                > {UserLogin == null ? "Login" : <> <FiLogOut /> Logout</>}
+                > {UserLogin ? <> <FiLogOut /> Logout</> : "Logins"}
                 </button>
               </div>
             )}
@@ -117,7 +124,7 @@ function LogoNavbar({ hide }) {
                 onClick={Logout}
               >
 
-                {UserLogin == null ? "Login" : <> <FiLogOut /> Logout</>}
+                {!UserLogin ? "Login" : <> <FiLogOut /> Logout</>}
               </button>
             </div>
           </div>
