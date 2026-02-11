@@ -1,20 +1,42 @@
 import React, { useEffect, useState } from 'react'
 import MasterAdminNavbar from './MasterAdminNavbar'
 import MasterLogoNav from './MasterLogoNav'
-import { AssignTeacher, fetchAllSubjects, fetchAllTeacherName } from './APIS/GetAll-subjects'
+import { AssignTeacher, fetchAllSubjects, fetchAllTeacherName, GetAllSubjectsAssignedTeacher } from './APIS/GetAll-subjects'
 import toast, { Toaster } from 'react-hot-toast'
 import { FaPlus } from 'react-icons/fa'
 import Swal from "sweetalert2";
 import { fun } from '../../../Components/UserisLogin'
+import { Header_Token_expry } from '../../../Apis/Islogin'
+import axios from 'axios'
+import Dataloading from '../../../Loaders/Dataloading'
 
 function AssiginTeacherwisesubjects() {
     const [GetSubjects, Setsubjects] = useState([])
     const [subjectsName, SetsubjectsName] = useState([])
     const [ChooseSubjects, setChooseSubjects] = useState('')
     const [ChooseTecherName, setChooseTecherName] = useState('')
+    const [fetchAssignedSubjects, setfetchAssignedSubjects] = useState([])
+    const [loader, setLoader] = useState(false)
     useEffect(() => {
         fun()
     }, [])
+    useEffect(() => {
+        const fetch = async () => {
+            try {
+                setLoader(true)
+                const data = await GetAllSubjectsAssignedTeacher()
+                setfetchAssignedSubjects(data)
+                setLoader(true)
+            }
+            catch (err) {
+                console.log(err)
+            }
+        }
+        fetch()
+    }, [])
+
+
+
     const FakeData = [{
         courseId: "cse101",
         subject: "java Programming",
@@ -37,10 +59,13 @@ function AssiginTeacherwisesubjects() {
         action: true
 
     }]
+
+
     useEffect(() => {
         const getSubjects = async () => {
             try {
                 const response_sudjects = await fetchAllSubjects()
+
                 Setsubjects(response_sudjects.data?.message)
                 // console.log(response_sudjects.status==401,'response ')
             }
@@ -67,15 +92,16 @@ function AssiginTeacherwisesubjects() {
 
     const assignSubjects = async () => {
         if (!ChooseSubjects || !ChooseTecherName) {
-            console.log("Please verify the subject and course details before assigning it to the teacher")
+
             return toast.error("Please verify the subject and course details before assigning it to the teacher.")
         }
         const data_choose = {
             ChooseSubjects,
-            ChooseTecherName
+            ChooseTecherName,
+            classid: `${ChooseSubjects.split("-")[1]}${ChooseSubjects.split("-")[2]}`
         }
 
-        // const reponse = ~await AssignTeacher(data_choose)
+
         Swal.fire({
             title: "Confirm Assign",
             text: `Assign ${data_choose.ChooseSubjects} to Prof. ${data_choose.ChooseTecherName}?`,
@@ -94,24 +120,20 @@ function AssiginTeacherwisesubjects() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await AssignTeacher(data_choose);
+                    const data = await AssignTeacher(data_choose);
 
-                    // ✅ SweetAlert success AFTER API
-                    Swal.fire({
+                    console.log(data)
+                    return Swal.fire({
                         title: "Assigned!",
                         text: "Teacher assigned successfully",
                         icon: "success",
                         timer: 1500,
                         showConfirmButton: false,
                     });
-                } catch (err) {
-                    const message =
-                        err?.response?.data?.message ||
-                        err?.message ||
-                        "Failed to assign teacher";
 
-                    // ❌ Error toast
-                    toast.error(message);
+
+                } catch (err) {
+                    console.log(err.message, 'from thw assignTecher.jsx')
                 }
             }
         });
@@ -161,8 +183,8 @@ function AssiginTeacherwisesubjects() {
                                         >
                                             <option value="" disabled>-- Subject --</option>
                                             {GetSubjects.map((sub, idx) => (
-                                                <option key={idx} value={sub.subject}>
-                                                    {sub.subject}
+                                                <option key={idx} value={`${sub.subject} -${sub.department}-${sub.year}-${sub.courseId}`}>
+                                                    {sub.subject} -{sub.department}-{sub.year}-{sub.courseId}
                                                 </option>
                                             ))}
                                         </select>
@@ -181,7 +203,7 @@ function AssiginTeacherwisesubjects() {
                                         >
                                             <option value="" disabled>-- Teacher --</option>
                                             {subjectsName.map((sub, idx) => (
-                                                <option key={idx} value={sub.name}>
+                                                <option key={idx} value={`${sub.name}@${sub.teacher_Id}@${sub.profilePreview}`}>
                                                     {sub.name}
                                                 </option>
                                             ))}
@@ -210,6 +232,12 @@ function AssiginTeacherwisesubjects() {
                                     <thead className="bg-gray-100">
                                         <tr>
                                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                                classId
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                                year
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                                                 Subject
                                             </th>
                                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
@@ -219,6 +247,9 @@ function AssiginTeacherwisesubjects() {
                                                 Teacher
                                             </th>
                                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                                department
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                                                 Teacher ID
                                             </th>
                                             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">
@@ -226,28 +257,29 @@ function AssiginTeacherwisesubjects() {
                                             </th>
                                         </tr>
                                     </thead>
-
-                                    {/* TABLE BODY */}
-                                    <tbody className="divide-y divide-gray-200 bg-white">
-                                        {FakeData.length > 0 ? (
-                                            FakeData.map((data, idx) => (
+                                    <tbody className="bg-white">
+                                        {loader ? (
+                                            <tr>
+                                                <td colSpan="9" className="h-64">
+                                                    <div className="flex items-center justify-center h-full">
+                                                        <Dataloading  path="Assigning teacher to subject…
+"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : fetchAssignedSubjects.length > 0 ? (
+                                            fetchAssignedSubjects.map((data, idx) => (
                                                 <tr className="hover:bg-gray-50" key={idx}>
-                                                    <td className="px-4 py-3 text-sm text-gray-800">
-                                                        {data.subject}
-                                                    </td>
-
-                                                    <td className="px-4 py-3 text-sm text-gray-800">
-                                                        {data.courseId}
-                                                    </td>
-
-                                                    <td className="px-4 py-3 text-sm text-gray-800">
-                                                        {data.assign_Teacher}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-gray-800">
-                                                        {data.teacher_Id}
-                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.classId}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.year}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.classId}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.subjects[0].subjectId}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.subjects[0].name}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.department}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.subjects[0].teacherId}</td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">{data.teacher_Id}</td>
                                                     <td className="px-4 py-3 text-center">
-                                                        <button className="text-red-600 hover:text-red-800 text-sm font-medium cursor-pointer">
+                                                        <button className="text-red-600 hover:text-red-800 text-sm font-medium">
                                                             Unassign
                                                         </button>
                                                     </td>
@@ -255,10 +287,7 @@ function AssiginTeacherwisesubjects() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td
-                                                    colSpan="4"
-                                                    className="px-4 py-6 text-center text-sm text-gray-500"
-                                                >
+                                                <td colSpan="9" className="px-4 py-6 text-center text-sm text-gray-500">
                                                     No assignments found
                                                 </td>
                                             </tr>
@@ -266,13 +295,14 @@ function AssiginTeacherwisesubjects() {
                                     </tbody>
 
                                 </table>
+
                             </div>
 
 
                         </div>
                     </main>
-                </div>
-            </div>
+                </div >
+            </div >
 
         </>
     )
