@@ -1,6 +1,7 @@
 import axios from "axios"
 import { handleLogout, UserLogin, Header_Token_expry } from "../../../../Apis/Islogin"
 import toast from "react-hot-toast"
+import { useNavigate } from "react-router-dom"
 
 export const fetchAllSubjects = async () => {
     try {
@@ -72,7 +73,6 @@ export const HandelDeleteCourse = async (data) => {
 }
 
 
-
 // get all assigned subjects from techer 
 export const GetAllSubjectsAssignedTeacher = async () => {
     const response = await axios.get("http://localhost:5001/api/AssignSubjects/assign/AllSubjects", Header_Token_expry)
@@ -81,11 +81,39 @@ export const GetAllSubjectsAssignedTeacher = async () => {
 }
 
 
-export const GetallTeacherProfile = async (req, res) => {
+export const GetallTeacherProfile = async () => {
 
-    const response = await axios.get("http://localhost:5001/api/subjects/get/TeachersInfo",
-        Header_Token_expry
-    )
-    return response
+    try {
+        const response = await axios.get("http://localhost:5001/api/subjects/get/TeachersInfo",
+            Header_Token_expry
+        )
+
+        console.log(response)
+        return response
+
+    } catch (error) {
+        if (error.response.data.message === "Token expired") {
+            handleLogout()
+        }
+
+    }
+
+}
+export const GetallStudentsProfile = async (req, res) => {
+
+    try {
+        const response = await axios.get("http://localhost:5001/api/subjects/get/StudentsInfo",
+            Header_Token_expry
+        )
+        console.log(response,)
+        
+        return response
+
+    } catch (error) {
+        if (error.response.data.message === "Token expired") {
+            handleLogout()
+        }
+
+    }
 
 }

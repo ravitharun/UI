@@ -5,12 +5,13 @@ import Swal from "sweetalert2";
 import toast, { Toaster } from 'react-hot-toast'
 import AdminHeader from '../../Components/AdminHeader'
 import { FaPlus } from 'react-icons/fa'
-import { TbHeadings } from '../../Components/Leaveheadings'
+import { TbAcceptHeadings, TbHeadings } from '../../Components/Leaveheadings'
 import Dataloading from '../../Loaders/Dataloading'
 import ProgressLoader from '../../Loaders/Progressloader'
 import { useEffect } from 'react'
 import { getRequestEmail } from './TechersApiCall/LeaveApi'
 import axios from 'axios';
+import { UserName } from '../../Apis/Islogin';
 
 function ApplyLeaveAccept() {
     const [loader, setloader] = useState(false)
@@ -44,9 +45,9 @@ function ApplyLeaveAccept() {
         setleaves(updatedData);
     };
 
-    const handelUpdate = (id, Fromdate, Todate) => {
+    const handelUpdate = (id, Fromdate, Todate, Leave_id) => {
 
-        if (!id || !Fromdate || !Todate) {
+        if (!id || !Fromdate || !Todate || !Leave_id) {
 
             return toast.error("Something went wrong");
         }
@@ -56,7 +57,7 @@ function ApplyLeaveAccept() {
         // ]
         const data = {
             id,
-            Fromdate, Todate, Status
+            Fromdate, Todate, Status, Leave_id
         }
         Swal.fire({
             title: "Approve Leave?",
@@ -77,6 +78,8 @@ function ApplyLeaveAccept() {
         });
         setEdit(false)
     }
+    console.log(leaves, 'leaves')
+    console.log(UserName, 'leaves')
     return (
         <>
 
@@ -86,11 +89,51 @@ function ApplyLeaveAccept() {
 
                 <AdminHeader pathname="Apply Leave Accept" />
                 {/* Apply Button */}
+                <div className="w-full flex justify-center gap-4 flex-wrap">
+
+                    {/* Search Box */}
+                    <input
+                        type="text"
+                        placeholder="Search applicant name..."
+                        className="w-72 px-4 py-2 border border-gray-300 rounded-md
+               focus:outline-none focus:ring-2 focus:ring-blue-400
+               focus:border-blue-400 transition-all"
+                    />
+
+                    {/* Leave Type Dropdown */}
+                    <select
+                        className="w-48 px-4 py-2 border border-gray-300 rounded-md
+               bg-white focus:outline-none
+               focus:ring-2 focus:ring-blue-400
+               focus:border-blue-400 transition-all"
+                    >
+                        <option value="">Leave Type</option>
+                        <option value="casual">Casual Leave</option>
+                        <option value="sick">Sick Leave</option>
+                        <option value="earned">Earned Leave</option>
+                    </select>
+
+                    {/* Status Dropdown */}
+                    <select
+                        className="w-40 px-4 py-2 border border-gray-300 rounded-md
+               bg-white focus:outline-none
+               focus:ring-2 focus:ring-blue-400
+               focus:border-blue-400 transition-all"
+                    >
+                        <option value="" selected disabled> Status</option>
+                        <option value="Inprogress">Inprogress</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+
+                </div>
                 <div className="w-full overflow-x-auto bg-white rounded-lg mt-10">
+
+
                     <table className="min-w-[900px] w-full border-collapse">
                         <thead className="bg-gray-100 text-gray-700">
                             <tr>
-                                {TbHeadings.map((heading, idx) => (
+                                {TbAcceptHeadings.map((heading, idx) => (
                                     <th key={idx} className="p-3 text-left whitespace-nowrap">
                                         {heading}
                                     </th>
@@ -112,9 +155,9 @@ function ApplyLeaveAccept() {
                                         leaves.map((item, index) => (
                                             <tr key={index} className="border-b hover:bg-gray-50 text-center">
                                                 <td className="p-3">{index + 1}</td>
-                                                <td className="p-3">{item.leaveType}</td>
+                                                <td className="p-3">{item.leaveType}-{item.EmpName}</td>
                                                 <td className="p-3">{item.ReasonLeave}</td>
-                                                <td className="p-3">{item.EmpEmailId}</td>
+                                                <td className="p-3">{item.EmpReq_EmailId}</td>
                                                 <td className="p-3">{item.EmpID}</td>
                                                 <td className="p-3">
                                                     {new Date(item.Fromdate).toLocaleDateString()}
@@ -124,11 +167,12 @@ function ApplyLeaveAccept() {
                                                 </td>
                                                 <td className="p-3">{item.TotalDays}</td>
                                                 <td
-                                                    className={`p-3 font-semibold ${item.Application_status === "Approved"
-                                                        ? "text-green-600"
-                                                        : item.Application_status === "Rejected"
-                                                            ? "text-red-600"
-                                                            : "text-yellow-600"
+                                                    className={`px-2 py-0.5 text-xs font-medium rounded-md inline-block
+${item.Application_status === "Accepted"
+                                                            ? "text-green-600 bg-green-50"
+                                                            : item.Application_status === "Rejected"
+                                                                ? "text-red-600 bg-red-50"
+                                                                : "text-yellow-600 bg-yellow-50"
                                                         }`}
                                                 >
                                                     {/* item.Application_status */}
@@ -152,7 +196,7 @@ function ApplyLeaveAccept() {
                                                     </> : item.Application_status}
 
                                                 </td>
-                                                <td className="p-3">{item.TotalDays}</td>
+                                                <td className="p-3">{new Date(item.createdAt).toLocaleDateString()}</td>
                                                 <td className="p-3"><>
 
                                                     <button
@@ -176,7 +220,7 @@ function ApplyLeaveAccept() {
                                                             className="px-4 py-1.5 rounded-lg bg-green-100 text-green-600 
              hover:bg-green-200 transition-all duration-200 
              text-sm font-medium"
-                                                            onClick={() => handelUpdate(item.EmpID, item.Fromdate, item.Todate)}
+                                                            onClick={() => handelUpdate(item.EmpID, item.Fromdate, item.Todate, item.Leave_id)}
                                                         >
                                                             Update
                                                         </button>

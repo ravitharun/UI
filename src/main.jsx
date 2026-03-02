@@ -29,6 +29,8 @@ import ProtectedRoute from './Components/ProtectedRoute.jsx';
 import AccountDeactivate from './Components/AcctountDeactive.jsx';
 import Issues from './Pages/AdminPages/Master/Issues.jsx';
 import ApplyLeaveAccept from './Pages/AdminPages/ApplyLeaveAccept.jsx';
+import TeacherProfileInfo from './Pages/AdminPages/Master/TeacherProfileInfo.jsx';
+import ProfilesStudenta from './Pages/AdminPages/Master/ProfilesStudenta.jsx';
 
 const Dashboard = lazy(() => import("./Pages/StudentPages/Dashboard.jsx"));
 const AdminDashboard = lazy(() => import("./Pages/AdminPages/AdminDashboard.jsx"));
@@ -106,6 +108,13 @@ createRoot(document.getElementById('root')).render(
 
           <StudentProfile />
         </ProtectedRoute>} />
+
+        <Route path="/TecherProfile/Info" element={<ProtectedRoute allowedRoles={"Admin"}>
+
+
+          <TeacherProfileInfo />
+        </ProtectedRoute>} />
+        
         <Route path="/teachers/ApplyLeaveAccept" element={<ProtectedRoute allowedRoles={"Teacher"}>
 
 
@@ -169,6 +178,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <ProtectedRoute allowedRoles={["Admin"]}>
               <Issues />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/Studenta"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <ProfilesStudenta />
             </ProtectedRoute>
           }
         />
