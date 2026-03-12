@@ -4,10 +4,10 @@ import { UserName } from '../Apis/Islogin';
 import { Link } from 'react-router-dom';
 
 function AdminHeader({ pathname }) {
-    console.log(pathname, 'pathname')
     const [showNotifications, setShowNotifications] = useState(false);
     return (
         <>
+
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-semibold text-gray-800">{pathname == "" ? "empyt" : pathname}</h1>
                 <div className="flex items-center gap-4">
@@ -19,7 +19,16 @@ function AdminHeader({ pathname }) {
                         <FaUser className="text-gray-600" />
                         <Link to="/teachers/profile">
 
-                            <span className="text-gray-800 font-medium text-sm">Mr. {UserName.name}</span></Link>
+                            <span  className="
+    text-sm font-medium
+    bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500
+    bg-[length:200%_200%]
+    bg-clip-text text-transparent
+    animate-gradient
+  ">
+                                Mr. {UserName.name}
+                            </span>
+                            </Link>
                     </div>
                 </div>
             </div>

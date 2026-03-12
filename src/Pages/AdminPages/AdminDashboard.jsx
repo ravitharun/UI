@@ -15,23 +15,38 @@ import { handleLogout, totalClass, UserName } from "../../Apis/Islogin";
 import { Link } from "react-router-dom";
 import MasterAdmin from "./Master/MasterAdmin";
 import { fun } from "../../Components/UserisLogin";
+import RedirectPopup from "../../Components/RedirectPopup";
+import PoupLogin from "../../Components/PoupLogin";
 // import UserisLogin from "../../Components/UserisLogin";
 
 function AdminDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   useEffect(() => {
 
-    const check_token=() => {
+    const check_token = () => {
       fun()
     }
     check_token()
   }, [])
+  const [redirectloadin, setredirectlogin] = useState(false)
 
-
-
+  const handleLogout = () => {
+    setredirectlogin(true)
+    const get = secureLocalStorage.removeItem("token")
+    const UserName = secureLocalStorage.removeItem("User_info")
+    if (!get) {
+      setTimeout(() => {
+        return window.location.href = "/login";
+      }, 1500);
+    }
+    return true
+  }
+  // const Check=handleLogout()
+  console.log(totalClass,'totalClass')
   return (
     <>
       <App></App>
+
       {/* <UserisLogin></UserisLogin> */}
       <div className="flex flex-col md:ml-64 p-6 space-y-6 min-h-screen bg-gray-100">
         {/* ================= HEADER ================= */}
@@ -68,10 +83,10 @@ function AdminDashboard() {
 
         {/* ================= STATS CARDS ================= */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <DashboardCard title="Classes" value={totalClass } icon={<FaChalkboardTeacher />} color="bg-blue-500" />
-          <DashboardCard title="Students" value={totalClass==0?"no":totalClass} icon={<FaUserGraduate />} color="bg-green-500" />
-          {/* <DashboardCard title="Assignments" value="12" icon={<FaTasks />} color="bg-purple-500" />
-          <DashboardCard title="Attendance" value="92%" icon={<FaCalendarCheck />} color="bg-orange-500" /> */}
+          <DashboardCard title="Classes" value={totalClass ==null?0:totalClass} icon={<FaChalkboardTeacher />} color="bg-blue-500" />
+          <DashboardCard title="Students" value={totalClass == null ? 0 : totalClass} icon={<FaUserGraduate />} color="bg-green-500" />
+          <DashboardCard title="Assignments" value="12" icon={<FaTasks />} color="bg-purple-500" />
+          <DashboardCard title="Attendance" value="92%" icon={<FaCalendarCheck />} color="bg-orange-500" ></DashboardCard>
         </div>
 
         {/* ================= MAIN CONTENT GRID ================= */}
@@ -111,6 +126,12 @@ function AdminDashboard() {
                 <FaSignOutAlt /> Logout
               </button>
             </div>
+            {redirectloadin && (
+              <RedirectPopup
+                type="Logout"
+                onComplete={handleLogout}
+              />
+            )}
           </div>
         </div>
 

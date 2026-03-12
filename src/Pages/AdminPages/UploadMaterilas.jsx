@@ -8,6 +8,7 @@ import { HandelUpload } from '../../Apis/FileUploadApi'
 import toast, { Toaster } from 'react-hot-toast'
 import { useLocation } from 'react-router-dom'
 import axios from 'axios'
+import Tablecomponets from '../../Components/Tablecomponets'
 
 function UploadMaterilas() {
     const [classList, setClassList] = useState([])
@@ -34,7 +35,7 @@ function UploadMaterilas() {
 
             } catch (error) {
                 console.log(error.message, 'from the Fetching Teacher Pages Api Call.')
-                toast.error(error.message)
+                toast.error(error.message==="Request failed with status code 404"?"No UploadMaterilas Found":"")
             }
         }
         Fetch_Assignment()
@@ -67,38 +68,6 @@ function UploadMaterilas() {
         setfile(null)
     }
 
-    const Samplejsondata = [
-        {
-
-            Section: "Cse-1",
-            UploadedDate: 1771477439702,
-            Name: "Java",
-            Description: "java basics.",
-            file: ""
-        }
-
-        , {
-
-            Section: "Cse-1",
-            UploadedDate: 1771477439702,
-            Name: "Java",
-            Description: "java basics.",
-            file: ""
-        }, {
-
-            Section: "Cse-1",
-            Name: "Java", UploadedDate: 1771477439702,
-            Description: "java basics.",
-            file: ""
-        }, {
-
-            Section: "Cse-1",
-            // UploadedDate:'1771477439702',
-            Name: "Java", UploadedDate: 1771477439702,
-            Description: "java basics.",
-            file: ""
-        }
-    ]
     return (
         <>
             <App></App>
@@ -347,35 +316,7 @@ function UploadMaterilas() {
                 )}
 
 
-                {/* <table border="1" cellPadding="10" cellSpacing="0">
-                    <thead>
-                        <tr>
-                            {['Section', 'Name', 'Description', 'Actions'].map((data, idx) => (
-                                <td key={idx}>{data}</td>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
 
-                            {
-                                Samplejsondata.map((notes, idx) => (
-                                    <div key={idx}>
-
-                                        <td>{notes.Section}</td>
-                                        <td>{notes.Name}</td>
-                                        <td>{notes.Description}</td>
-                                        <td>
-                                            <button onClick={() => toast.success(`edit ft ${idx}`)}>Edit</button>
-                                            <button onClick={() => toast.success(`view ft ${idx}`)}>View</button>
-                                            <button onClick={() => toast.success(`delete ft ${idx}`)}>Delete</button>
-                                        </td>
-                                    </div>
-                                ))
-                            }
-                        </tr>
-                    </tbody>
-                </table> */}
                 <div className="w-full bg-white shadow-lg rounded-xl p-4">
 
                     <h2 className="text-xl font-semibold mb-4 text-gray-700">
@@ -388,69 +329,26 @@ function UploadMaterilas() {
                             {/* Table Head */}
                             <thead className="bg-blue-600 text-white">
                                 <tr>
-                                    {['Section', 'Name', 'Description', 'Uploaded Date', 'Actions'].map((data, idx) => (
-                                        <th key={idx} className="px-4 py-3 whitespace-nowrap">
-                                            {data}
-                                        </th>
-                                    ))}
+                                    {["Section", "Name", "Description", "Uploaded Date", "Actions"].map(
+                                        (data, idx) => (
+                                            <th key={idx} className="px-4 py-3 whitespace-nowrap">
+                                                {data}
+                                            </th>
+                                        )
+                                    )}
                                 </tr>
                             </thead>
 
                             {/* Table Body */}
                             <tbody className="divide-y divide-gray-200">
-                                {Samplejsondata.map((notes, idx) => (
-                                    <tr key={idx} className="hover:bg-gray-50 transition duration-200">
 
-                                        <td className="px-4 py-3 whitespace-nowrap" title={notes.Section}>
-                                            {notes.Section}
-                                        </td>
+                                {classList.length === 0 && (
+                                    <Tablecomponets sizeTb={classList.length} col={5} text="There is no Upload Material Found." />
+                                )}
 
-                                        <td className="px-4 py-3 whitespace-nowrap" title={notes.Name}>
-                                            {notes.Name}
-                                        </td>
+                                {/* Your table rows will go here */}
 
-                                        <td className="px-4 py-3 max-w-xs truncate" title={notes.Description}>
-                                            {notes.Description}
-                                        </td>
-                                        <td className="px-4 py-3 max-w-xs truncate whitespace-nowrap" title='uploaded Date And time'>
-                                            <span title="Date Uploaded">
-                                                {new Date(notes.UploadedDate).toLocaleDateString()}
-                                            </span>
-                                            {" - "}
-                                            <span title="Time Uploaded">
-                                                {new Date(notes.UploadedDate).toLocaleTimeString()}
-                                            </span>
-                                        </td>
-
-                                        <td className="px-4 py-3 whitespace-nowrap space-x-2">
-
-                                            <button
-                                                onClick={() => toast.success(`Edit ${idx}`)}
-                                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-xs"
-                                            >
-                                                Edit
-                                            </button>
-
-                                            <button
-                                                onClick={() => toast.success(`View ${idx}`)}
-                                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-xs"
-                                            >
-                                                View
-                                            </button>
-
-                                            <button
-                                                onClick={() => toast.success(`Delete ${idx}`)}
-                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs"
-                                            >
-                                                Delete
-                                            </button>
-
-                                        </td>
-
-                                    </tr>
-                                ))}
                             </tbody>
-
                         </table>
                     </div>
                 </div>

@@ -37,7 +37,7 @@ export const AssignTeacher = async (data) => {
     catch (err) {
         console.log()
         if (err.message == 'Request failed with status code 400') {
-            return alert('Course alredy ')
+            return alert('Course is already Assigned. ')
         }
 
     }
@@ -76,7 +76,7 @@ export const HandelDeleteCourse = async (data) => {
 // get all assigned subjects from techer 
 export const GetAllSubjectsAssignedTeacher = async () => {
     const response = await axios.get("http://localhost:5001/api/AssignSubjects/assign/AllSubjects", Header_Token_expry)
-    console.log(response.data.message, 'res')
+
     return response.data.message
 }
 
@@ -117,15 +117,17 @@ export const GetallStudentsProfile = async () => {
     }
 
 }
-export const HandelUnassignApi = async (id) => {
-    console.log(id, 'id From api Call')
+export const HandelUnassignApi = async (id, techerid,type,action) => {
+    const info = { id, techerid ,type,action}
+    console.log(info, 'id From api Call')
 
     try {
-        const response = await axios.delete("http://localhost:5001/api/AssignSubjects/Delete/AssiginSubjects", {params:{
-            data:id
-        }},
+        const response = await axios.delete("http://localhost:5001/api/AssignSubjects/Delete/AssiginSubjects", {
+          
+                data: info
+            
+        },
         )
-        console.log(response,)
 
         return response
 
