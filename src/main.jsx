@@ -32,6 +32,10 @@ import ApplyLeaveAccept from './Pages/AdminPages/ApplyLeaveAccept.jsx';
 import TeacherProfileInfo from './Pages/AdminPages/Master/TeacherProfileInfo.jsx';
 import ProfilesStudenta from './Pages/AdminPages/Master/ProfilesStudenta.jsx';
 import TeachersProfile from './Pages/AdminPages/TeachersProfile.jsx';
+import Annoncement from './Pages/AdminPages/Master/Announcemet.jsx';
+import AcademiCalendar from './Pages/StudentPages/AcademiCalendar.jsx';
+import ExamSchedule from './Pages/StudentPages/ExamSchedule.jsx';
+import TeacherAcademicCalendar from './Pages/AdminPages/TeacherAcademicCalendar.jsx';
 
 const Dashboard = lazy(() => import("./Pages/StudentPages/Dashboard.jsx"));
 const AdminDashboard = lazy(() => import("./Pages/AdminPages/AdminDashboard.jsx"));
@@ -78,6 +82,26 @@ createRoot(document.getElementById('root')).render(
             <ProtectedRoute allowedRoles={"students"}>
 
               <Studentprofile />
+            </ProtectedRoute>
+
+          </Suspense>}
+
+        />
+        <Route path="/Academic-Calendar"
+          element={<Suspense fallback={<BackgroungImgLoader />}>
+            <ProtectedRoute allowedRoles={"students"}>
+
+              <AcademiCalendar />
+            </ProtectedRoute>
+
+          </Suspense>}
+
+        />
+        <Route path="/Exam-Schedule"
+          element={<Suspense fallback={<BackgroungImgLoader />}>
+            <ProtectedRoute allowedRoles={"students"}>
+
+              <ExamSchedule />
             </ProtectedRoute>
 
           </Suspense>}
@@ -147,6 +171,14 @@ createRoot(document.getElementById('root')).render(
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/teacher/Academic-Calendar"
+          element={
+            <ProtectedRoute allowedRoles={["Teacher"]}>
+              <TeacherAcademicCalendar />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/students"
@@ -195,6 +227,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <ProtectedRoute allowedRoles={["Admin"]}>
               <ProfilesStudenta />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/Annoncement"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <Annoncement />
             </ProtectedRoute>
           }
         />
