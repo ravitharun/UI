@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import AdminHeader from '../../Components/AdminHeader'
-import { Toaster } from 'react-hot-toast'
+import toast, { Toaster } from 'react-hot-toast'
 import App from '../../App'
 import { FaCalendarAlt, FaClock, FaRegCalendarCheck, FaUsers } from 'react-icons/fa';
 import { UserName } from '../../Apis/Islogin';
 import Calendars from '../StudentPages/Calendars';
+import axios from 'axios';
 
 function TeacherAcademicCalendar() {
     const [Event, setAddEvent] = useState(false)
@@ -15,7 +16,35 @@ function TeacherAcademicCalendar() {
         { icon: <FaRegCalendarCheck className="text-blue-500 text-3xl hover:text-gray-700" />, text: 'View calendar by month, week, or day' },
         { icon: <FaUsers className="text-blue-500 text-3xl hover:text-gray-700" />, text: 'Role-based access for admins, teachers, and students' },
     ];
+    const [EventName, setEventName] = useState("")
+    const [Eventtype, setEventtype] = useState("")
+    const [Eventsatert, setEventsatrt] = useState("")
+    const [Eventend, setEventend] = useState("")
+    const [Addbyname, setaddbyname] = useState(UserName?.name)
+    const [Addbyid, setaddbyid] = useState(UserName?.teacher_Id)
+    const [addbrole, setaddbrole] = useState(UserName?.role)
+    const [Descprition, setDescprition] = useState("")
+    const HandelEvent = async () => {
+        if (!EventName || !Eventtype || !Eventsatert || !Eventend || !Addbyname || !Addbyid || !addbrole || !Descprition) {
+            return toast.error("fill the required input's.");
+        }
+        try {
+            const eventData = {
+                EventName, Eventsatert, Eventend, Eventtype, Addbyname, Addbyid, addbrole, Descprition
+            }
+            console.log(eventData)
+            const responseAddEvent = await axios.post("http://localhost:5001/api/Academic/addAcademic", { eventData: eventData })
+            console.log(responseAddEvent.data.message, ": responseAddEvent")
+            if (responseAddEvent.data.message === "DATA ADDED INTO DB.") {
+                toast.success("DATA ADDED ")
+                return setAddEvent(false)
+            }
 
+
+        } catch (error) {
+            console.log(error, "ERROR")
+        }
+    }
     return (
         <>
 
@@ -92,6 +121,7 @@ function TeacherAcademicCalendar() {
                                         <input
                                             type="text"
                                             required
+                                            onChange={(e) => setEventName(e.target.value)}
                                             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             placeholder="Enter event name"
                                         />
@@ -101,6 +131,7 @@ function TeacherAcademicCalendar() {
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Event Type *</label>
                                         <select
                                             required
+                                            onClick={(e) => setEventtype(e.target.value)}
                                             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                         >
                                             <option value="">Select type</option>
@@ -119,6 +150,7 @@ function TeacherAcademicCalendar() {
                                         <input
                                             type="datetime-local"
                                             required
+                                            onChange={(e) => setEventsatrt(e.target.value)}
                                             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                         />
                                     </div>
@@ -128,6 +160,7 @@ function TeacherAcademicCalendar() {
                                         <input
                                             type="datetime-local"
                                             required
+                                            onChange={(e) => setEventend(e.target.value)}
                                             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                         />
                                     </div>
@@ -141,6 +174,7 @@ function TeacherAcademicCalendar() {
                                             type="text"
                                             value={UserName?.teacher_Id || ""}
                                             readOnly
+                                            onChange={(e) => setaddbyid(e.target.value)}
                                             className="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 cursor-not-allowed"
                                         />
                                     </div>
@@ -149,6 +183,7 @@ function TeacherAcademicCalendar() {
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
                                         <input
                                             type="text"
+                                            onChange={(e) => setaddbrole(e.target.value)}
                                             value={UserName?.role || ""}
                                             readOnly
                                             className="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 cursor-not-allowed"
@@ -161,12 +196,12 @@ function TeacherAcademicCalendar() {
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                                     <textarea
                                         rows={3}
+                                        onChange={(e) => setDescprition(e.target.value)}
                                         className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                         placeholder="Add event description (optional)..."
                                     />
                                 </div>
                             </form>
-
                             {/* Bottom Action Buttons */}
                             <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
                                 <button
@@ -175,12 +210,13 @@ function TeacherAcademicCalendar() {
                                 >
                                     Cancel
                                 </button>
-                                <button
+                                {EventName && <button
                                     type="submit"
+                                    onClick={HandelEvent}
                                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                                 >
                                     Save Event
-                                </button>
+                                </button>}
                             </div>
                         </div>
                     </div>

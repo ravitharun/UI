@@ -38,21 +38,19 @@ const handelLogin = async (data, e) => {
       }
     })
 
-    if (response.data.message == "The password is incorrect") {
-      return toast.error("The password is incorrect")
-    }
+
 
     secureLocalStorage.setItem("token", response.data.
       token)
     secureLocalStorage.setItem("User_info", response.data.
       user)
-    secureLocalStorage.getItem("User_info")
+
 
     return response
     // return response
   } catch (error) {
-    // console.log(error.message)
-    toast.error(error?.message)
+    console.log("ERRR: ", error.message)
+    return error
 
   }
 }

@@ -19,47 +19,86 @@ export default function Login() {
   const [redirectloadin, setredirectloading] = useState(false)
   // handel login api data
   const handelloginapi = async (e) => {
+    try {
+      if (!StudentEmail || !StudentPassword || !role) {
+        toast.error("Fill the required field's to login.")
 
-    if (!StudentEmail || !StudentPassword || !role) {
-      toast.error("Fill the required field's to login.")
+      }
+      if (!ischeck) {
+        return toast.error("U Not agree to the Terms & Conditions. ")
+      }
+      const Userdata = {
+        StudentEmail,
+        role,
+        StudentPassword
+      }
 
-    }
-    if (!ischeck) {
-      return toast.error("U Not agree to the Terms & Conditions. ")
-    }
-    const Userdata = {
-      StudentEmail,
-      role,
-      StudentPassword
-    }
-    setloading(true)
-    setredirectloading(true)
-    const get_user_valid = await handelLogin(Userdata, e)
-    setloading(false)
-    setredirectloading(false)
-    if (get_user_valid.data.user.role == "Teacher") {
-      setredirectloading(true)
-      toast.success(`Login successfully - Hey ! ${get_user_valid.data.user.name}- ${get_user_valid.data.user.role}`)
-      setTimeout(() => {
-        return window.location.href = "/admin-dashboard"
-      }, 3500);
-    }
-    else if (get_user_valid.data.user.role == 'Admin') {
-      toast.success(`Login successfully - Hey ! ${get_user_valid.data.user.name}- ${get_user_valid.data.user.role}`)
-      setredirectloading(true)
-      setTimeout(() => {
+      // setloading(true)
+      // setredirectloading(true)
+      const get_user_valid = await handelLogin(Userdata, e)
 
-        return window.location.href = "/AdminDashboard"
-      }, 3500)
 
+      // setloading(false)
+      setredirectloading(false)
+      console.log(get_user_valid.status == 403)
+      if (get_user_valid.status == 400 && get_user_valid.response.data.message == "all inputs are required") {
+        return toast.error("all inputs are required")
+      }
+      // password is incorrect Check 
+      if (get_user_valid.status == 403 && get_user_valid.response.data.message == "The password is incorrect") {
+        return toast.error("Incorrect password", {
+          style: {
+            background: "#fff1f0",
+            color: "#cf1322",
+            borderLeft: "4px solid #ff4d4f",
+            borderRadius: "10px",
+            padding: "12px",
+            fontSize: "14px",
+          }
+        });
+      }
+
+      if (get_user_valid?.data?.user?.role == "Teacher") {
+        setredirectloading(true)
+        toast.success(
+          `Login successfully - Hey! ${get_user_valid?.data?.user?.name} (${get_user_valid?.data?.user?.role})`,
+
+        );
+        setTimeout(() => {
+          return window.location.href = "/admin-dashboard"
+        }, 3500);
+      }
+      // Admin Route
+      else if (get_user_valid?.data?.user?.role == 'Admin') {
+        toast.success(
+          `Login successfully - Hey! ${get_user_valid?.data?.user?.name} (${get_user_valid?.data?.user?.role})`,
+
+        );
+        setredirectloading(true)
+        setTimeout(() => {
+
+          return window.location.href = "/AdminDashboard"
+        }, 3500)
+
+      }
+      // Student Route
+      else {
+        console.log("hey")
+        toast.success(
+          `Login successfully - Hey! ${get_user_valid?.data?.user?.name || ""} (${get_user_valid.data.user.role || ""})`,
+        );
+        setredirectloading(true)
+        setTimeout(() => {
+
+          return window.location.href = "/"
+        }, 3500);
+
+      }
     }
-    else {
-      toast.success(`Login successfully - Hey ! ${get_user_valid.data.user.name}- ${get_user_valid.data.user.role}`)
-      setredirectloading(true)
-      setTimeout(() => {
+    catch (error) {
+      // console.log(error.status)
+      console.log(error)
 
-        return window.location.href = "/"
-      }, 3500);
 
     }
   }
@@ -188,7 +227,7 @@ export default function Login() {
           </form>
 
           {/* OR */}
-          <div className="my-4 flex items-center gap-2">
+          {/* <div className="my-4 flex items-center gap-2">
             <div className="h-px flex-1 bg-gray-600" />
             <span className="text-xs text-gray-400">OR</span>
             <div className="h-px flex-1 bg-gray-600" />
@@ -196,7 +235,7 @@ export default function Login() {
 
           <p className="text-center text-xs text-gray-400">
             Sign In with Google (coming soon)
-          </p>
+          </p> */}
         </div>
       </div>
       {redirectloadin && (

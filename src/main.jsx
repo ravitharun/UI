@@ -36,6 +36,9 @@ import Annoncement from './Pages/AdminPages/Master/Announcemet.jsx';
 import AcademiCalendar from './Pages/StudentPages/AcademiCalendar.jsx';
 import ExamSchedule from './Pages/StudentPages/ExamSchedule.jsx';
 import TeacherAcademicCalendar from './Pages/AdminPages/TeacherAcademicCalendar.jsx';
+import { UserName } from './Apis/Islogin.js';
+import AddTimeTable from './Pages/AdminPages/Master/AddTimeTable.jsx';
+import ClassTimings from './Pages/StudentPages/ClassTimings.jsx';
 
 const Dashboard = lazy(() => import("./Pages/StudentPages/Dashboard.jsx"));
 const AdminDashboard = lazy(() => import("./Pages/AdminPages/AdminDashboard.jsx"));
@@ -55,6 +58,14 @@ createRoot(document.getElementById('root')).render(
             <ProtectedRoute allowedRoles={"student"}>
 
               <Dashboard />
+            </ProtectedRoute>
+          </Suspense>
+        } />
+        <Route path="/Class-Timings" element={
+          <Suspense fallback={<BackgroungImgLoader />}>
+            <ProtectedRoute allowedRoles={"student"}>
+
+              <ClassTimings />
             </ProtectedRoute>
           </Suspense>
         } />
@@ -235,6 +246,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <ProtectedRoute allowedRoles={["Admin"]}>
               <Annoncement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/AddTimeTable"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AddTimeTable />
             </ProtectedRoute>
           }
         />
