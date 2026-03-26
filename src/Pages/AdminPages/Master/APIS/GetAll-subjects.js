@@ -1,11 +1,12 @@
 import axios from "axios"
 import { handleLogout, UserLogin, Header_Token_expry } from "../../../../Apis/Islogin"
 import toast from "react-hot-toast"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
-export const fetchAllSubjects = async () => {
+export const fetchAllSubjects = async (page) => {
     try {
-        const response = await axios.get("http://localhost:5001/api/subjects/get/subjects", Header_Token_expry)
+        const response = await axios.get(`http://localhost:5001/api/subjects/get/subjects?page=${(page)}`, Header_Token_expry)
+        console.log(response, "response")
         return response
     }
     catch (err) {
@@ -81,14 +82,14 @@ export const GetAllSubjectsAssignedTeacher = async () => {
 }
 
 
-export const GetallTeacherProfile = async () => {
+export const GetallTeacherProfile = async (Page) => {
 
     try {
-        const response = await axios.get("http://localhost:5001/api/subjects/get/TeachersInfo",
+        console.log(Page, "Page")
+        const response = await axios.get(`http://localhost:5001/api/subjects/get/TeachersInfo?Page=${Page}`,
             Header_Token_expry
         )
 
-        console.log(response)
         return response
 
     } catch (error) {
@@ -99,10 +100,11 @@ export const GetallTeacherProfile = async () => {
     }
 
 }
-export const GetallStudentsProfile = async () => {
+export const GetallStudentsProfile = async (Page) => {
 
     try {
-        const response = await axios.get("http://localhost:5001/api/subjects/get/StudentsInfo",
+     
+        const response = await axios.get(`http://localhost:5001/api/subjects/get/StudentsInfo?Page=${Page}`,
             Header_Token_expry
         )
         console.log(response,)
@@ -117,15 +119,15 @@ export const GetallStudentsProfile = async () => {
     }
 
 }
-export const HandelUnassignApi = async (id, techerid,type,action) => {
-    const info = { id, techerid ,type,action}
+export const HandelUnassignApi = async (id, techerid, type, action) => {
+    const info = { id, techerid, type, action }
     console.log(info, 'id From api Call')
 
     try {
         const response = await axios.delete("http://localhost:5001/api/AssignSubjects/Delete/AssiginSubjects", {
-          
-                data: info
-            
+
+            data: info
+
         },
         )
 
