@@ -9,6 +9,8 @@ import toast, { Toaster } from 'react-hot-toast'
 import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import Tablecomponets from '../../Components/Tablecomponets'
+import { FetchClassByTecherId } from './TechersApiCall/FectchClassApi'
+import Tomany from '../../Loaders/Tomany'
 
 function UploadMaterilas() {
     const [classList, setClassList] = useState([])
@@ -19,23 +21,24 @@ function UploadMaterilas() {
     const [file, setfile] = useState(null)
     const Action = "Material"
     const loc = useLocation()
+    const[requestTimeout,setrequestTimeout]=useState(false)
     // console.log(loc.state)
     const [LocaationState, setState] = useState(loc.state)
     useEffect(() => {
         const Fetch_Assignment = async () => {
             try {
 
-                const reonse = await axios.get("http://localhost:5001/api/classlist/getsection", {
-                    params: {
-                        teacher_Id: UserName.teacher_Id
-                    }
-                })
-                console.log(reonse.data.message)
+                const reonse = await FetchClassByTecherId()
+                console.log(reonse.status == 429, 'res')
+                if (reonse.status == 429) {
+                    return setrequestTimeout(true)
+                }
+                setrequestTimeout(false)
                 setClassList(reonse.data.message)
 
             } catch (error) {
                 console.log(error.message, 'from the Fetching Teacher Pages Api Call.')
-                toast.error(error.message==="Request failed with status code 404"?"No UploadMaterilas Found":"")
+                toast.error(error.message === "Request failed with status code 404" ? "No UploadMaterilas Found" : "")
             }
         }
         Fetch_Assignment()
@@ -69,9 +72,10 @@ function UploadMaterilas() {
     }
 
     return (
-        <>
+        <omany>
             <App></App>
             <Toaster />
+            {requestTimeout && <Tomany/>}
             <div className="md:ml-64 p-6 space-y-6 min-h-screen bg-gray-100">
                 {/* ================= HEADER ================= */}
                 <div className=''>
@@ -358,7 +362,7 @@ function UploadMaterilas() {
 
             </div>
 
-        </>
+        </omany>
     )
 }
 
