@@ -2,14 +2,18 @@
 import { useEffect, useState } from "react";
 import MasterAdminNavbar from "./MasterAdminNavbar";
 import MasterLogoNav from "./MasterLogoNav";
-import { fun } from "../../../Components/UserisLogin";
+import { fun } from "../../../src/Components/UserisLogin";
 import { Link } from "react-router-dom";
-import WelcomeMessage from "../../../Components/WelcomeMessage";
-import Announcement from "../../../Components/Announcement";
+import WelcomeMessage from "../../../src/Components/WelcomeMessage";
+import Announcement from "../../../src/Components/Announcement";
 import axios from "axios";
-import { socket } from "../../../Socket";
-import { MaintanceMode } from "../../../Apis/Islogin";
-import Undermanitance from "../../../Loaders/Undermanitance";
+import { socket } from "../../../../UI/src/Socket";
+import { MaintanceMode, url } from "../../Apis/Islogin";
+import Undermanitance from "../../Loaders/Undermanitance";
+import Loaders from "../../Loaders/Loaders";
+
+
+
 
 
 function DashboardLayout({ children }) {
@@ -37,7 +41,7 @@ function DashboardLayout({ children }) {
   useEffect(() => {
     const Getdata = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/UsersCount/user")
+        const response = await axios.get(`${url}/api/UsersCount/user`)
         console.log(response.data, "Count")
         setcount(response.data.message)
       } catch (error) {
@@ -48,20 +52,20 @@ function DashboardLayout({ children }) {
   }, [])
   return (
     <>
-      {MaintanceMode ? <Undermanitance /> :
 
+      {MaintanceMode ? <Undermanitance /> :
 
         <div className="min-h-screen flex bg-gray-50">
 
           <Announcement></Announcement>
           {/* Sidebar */}
-          <MasterAdminNavbar path="Dashboard" />
+          <MasterAdminNavbar path="Dashboard" Active={true}/>
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col min-w-0 w-full">
 
             {/* Top Navbar */}
-            <MasterLogoNav path="AdminDashboard" />
+            <MasterLogoNav path="Dashboard" />
 
             {/* Content */}
             <main className="flex-1 pt-16 pb-8 px-4 md:px-8 lg:px-12 overflow-y-auto">

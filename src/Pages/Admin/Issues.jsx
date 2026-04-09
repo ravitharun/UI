@@ -3,11 +3,12 @@ import MasterAdminNavbar from './MasterAdminNavbar'
 import MasterLogoNav from './MasterLogoNav'
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast'
-import Dataloading from '../../../Loaders/Dataloading'
+
 import Swal from 'sweetalert2'
 import { deactivateAccount } from './APIS/DeactivateAccount'
-import { MaintanceMode } from '../../../Apis/Islogin'
-import Undermanitance from '../../../Loaders/Undermanitance'
+
+import Dataloading from '../../Loaders/Dataloading'
+import { url } from '../../Apis/Islogin'
 
 function Issues() {
     const page = 'Issues'
@@ -19,7 +20,7 @@ function Issues() {
         const getIssues = async () => {
             try {
                 setloader(true)
-                const response = await axios.get("http://localhost:5001/api/Account/GetAllUpdateReason")
+                const response = await axios.get(`${url}/api/Account/GetAllUpdateReason`)
 
                 console.log(response.data?.message, 'response api call')
                 // console.log(response)

@@ -6,9 +6,9 @@ import { FiX, FiCalendar, FiUpload, FiTag, FiPlus } from "react-icons/fi";
 import axios from 'axios';
 import GetAnnouncement from './GetAnnouncement';
 import { useEffect } from 'react';
-import { socket } from '../../../Socket';
-import { MaintanceMode, UserName } from '../../../Apis/Islogin';
-import Undermanitance from '../../../Loaders/Undermanitance';
+import { socket } from '../../Socket';
+import { MaintanceMode, url, UserName } from '../../Apis/Islogin';
+import Undermanitance from '../../Loaders/Undermanitance';
 function Annoncement() {
     const page = "Annoncement"
     const [openPoup, setopenPoup] = useState(false)
@@ -68,7 +68,7 @@ function Annoncement() {
             formdata.append("TargetAudience", TargetAudience)
             formdata.append("AddedBy", UserName?.role == 'Admin' ? UserName?.Admin_Id : UserName?.teacher_Id)
             formdata.append("Role", UserName?.role)
-            const response = await axios.post("http://localhost:5001/api/Announcement/addAnnouncement", formdata, {
+            const response = await axios.post(`${url}/api/Announcement/addAnnouncement`, formdata, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
