@@ -3,11 +3,11 @@ import MasterAdminNavbar from "./MasterAdminNavbar";
 import MasterLogoNav from "./MasterLogoNav";
 import { deactivateAccount } from "./APIS/DeactivateAccount";
 import toast, { Toaster } from "react-hot-toast";
-import Swal from "sweetalert2";
 import { fetchAllTeacherName, GetallTeacherProfile } from "./APIS/GetAll-subjects";
 ;
 import { useNavigate } from "react-router-dom";
 import Dataloading from "../../Loaders/Dataloading";
+import AccountLoader from "../../Loaders/AccountLoader";
 
 function TeachersProfiles() {
     const page = "Teachers";
@@ -17,6 +17,8 @@ function TeachersProfiles() {
     const [loading, setloading] = useState(false)
     const [Page, setpage] = useState(1);
     const [length, setlength] = useState(1);
+    const [accountLoading, setaccountLoading] = useState(false)
+
 
     useEffect(() => {
         const GetallTechers = async () => {
@@ -49,37 +51,25 @@ function TeachersProfiles() {
             setteacherprofile(Profiles)
         }
     }
+
     const handelclear = () => {
         setSerchteacherprofile('')
     }
-    const HandelAccount = async (id) => {
-        Swal.fire(
 
-            {
-                title: "Are you sure you want to deactivate this account? The user will lose access until the account is reactivated.",
-                showDenyButton: true,
-                // showCancelButton: true,
-                confirmButtonText: "Deactivate",
-                // denyButtonText: ``
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    const data = await deactivateAccount(id)
-                    if (data.data.message === 'ok') {
-                        Swal.fire(
-                            "Success!",
-                            "Account has been deactivated successfully.",
-                            "success"
-                        );
-                        // toast.success("DeactivateAccount.")
-                    }
-                } else if (result.isDenied) {
-                    Swal.fire(
-                        "Cancelled",
-                        "The action has been cancelled.",
-                        "info"
-                    );
-                }
-            });
+
+    const HandelAccount = async (id) => {
+        try {
+            setaccountLoading(true)
+
+            const data = await deactivateAccount(id, "")
+
+
+
+        } catch (error) {
+            console.log(error, 'error')
+            toast.error("Some thing Went Wrong.")
+        }
+        finally { setaccountLoading(false) }
 
 
 
@@ -87,10 +77,16 @@ function TeachersProfiles() {
 
 
     const HandelAccountActivate = async (id, action = "Update") => {
+        try {
+            setaccountLoading(true)
 
-        const data = await deactivateAccount(id, action)
 
+            const data = await deactivateAccount(id, action)
 
+        } catch (error) {
+            toast.error(error.message)
+        }
+        finally { setaccountLoading(false) }
 
     }
     const navigate = useNavigate("")
@@ -102,8 +98,10 @@ function TeachersProfiles() {
         })
 
     }
+    console.log(accountLoading, 'accountLoading1')
     return (
         <>
+            {accountLoading ? <AccountLoader /> : null}
             <Toaster />
             <div className="min-h-screen flex bg-gray-50">
                 <MasterAdminNavbar path={page} />
@@ -196,16 +194,25 @@ function TeachersProfiles() {
                                                 {/* Online Status */}
                                                 <div className="flex items-center gap-2">
                                                     <span
-                                                        className={`w-2.5 h-2.5 rounded-full ${pr?.isonline ? "bg-green-500" : "bg-red-500"
+                                                        className={`w-2.5 h-2.5 rounded-full ${pr?.isActive ? "bg-green-500" : "bg-red-500"
                                                             }`}
                                                     ></span>
                                                     <span
                                                         className={
-                                                            pr?.isonline ? "text-green-600" : "text-red-600"
+                                                            pr?.isActive ? "text-green-600" : "text-red-600"
                                                         }
                                                     >
-                                                        {pr?.isonline ? "Online" : "Offline"}
+                                                        {pr?.isActive ? "Online" : "Offline"}
                                                     </span>
+                                                    {pr?.isActive == false &&
+                                                        <span
+                                                            className={
+                                                                "text-red-600"
+                                                            }
+                                                        >
+                                                            { new Date(pr.lastSeen ||  new Date()).toUTCString() }
+                                                            {/* {pr?.lastSeen ? new Date(pr.lastSeen).toGMTString() : new Date()} */}
+                                                        </span>}
                                                 </div>
 
                                                 {/* Account Status */}
@@ -233,22 +240,21 @@ function TeachersProfiles() {
                                                 <button className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition duration-200 shadow-sm hover:shadow-md">
                                                     Message
                                                 </button>
-
-                                                {pr?.AccountStatus ? (
+                                                {pr?.AccountStatus ?
                                                     <button
                                                         className="px-4 py-2 rounded-lg bg-gray-400 text-white text-sm font-medium cursor-pointer hover:bg-green-500"
                                                         title="You can The Activate Account"
                                                         onClick={() => HandelAccountActivate(pr.teacher_Id)}              >
-                                                        Deactivated
+                                                        Activate
                                                     </button>
-                                                ) : (
+                                                    :
                                                     <button
                                                         className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition duration-200 shadow-sm hover:shadow-md"
                                                         onClick={() => HandelAccount(pr.teacher_Id)}
                                                     >
                                                         Deactivate
                                                     </button>
-                                                )}
+                                                }
                                             </div>
                                         </div>
                                     </div>

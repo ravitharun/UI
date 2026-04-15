@@ -1,10 +1,9 @@
 import axios from "axios"
+import { url } from "../../Apis/Islogin"
 
 export const GetallSubjects = async (data) => {
     // try {
-    console.log(data, 'data')
-    const response = await axios.get(`http://localhost:5001/api/AssignSubjects/get/subjects/${data}`)
-    console.log(response, 'response_subjectsByClassID')
+    const response = await axios.get(`${url}/api/AssignSubjects/get/subjects/${data}`)
     return response
 
 

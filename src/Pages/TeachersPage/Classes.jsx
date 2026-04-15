@@ -9,8 +9,9 @@ import secureLocalStorage from "react-secure-storage";
 import Tablecomponets from "../../Components/Tablecomponets";
 import AdminHeader from "../../Components/AdminHeader";
 import Tomany from "../../Loaders/Tomany";
-import { MaintanceMode } from "../../Apis/Islogin";
+import { MaintanceMode, UserName } from "../../Apis/Islogin";
 import Undermanitance from "../../Loaders/Undermanitance";
+import { socket } from "../../Socket";
 
 function Classes() {
   const [Action, SetActon] = useState("");
@@ -23,13 +24,12 @@ function Classes() {
     year: "",
     department: ""
   })
-
+ 
 
   useEffect(() => {
     const Fetch_Class = async () => {
       try {
         const response_class = await GetClassList()
-        console.log(response_class.status, 'response_class')
         if (response_class.status == 429) {
           return setrequest(true)
         }
@@ -83,7 +83,6 @@ function Classes() {
         break;
       default:
         navigate("/report", { state: dataID })
-        console.log('repots')
         break;
     }
   }
