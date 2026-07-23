@@ -1,0 +1,554 @@
+import React, { useEffect, useState } from 'react'
+import { CiCircleCheck } from "react-icons/ci";
+import { useWindowSize } from 'react-use'
+import { FiXCircle } from 'react-icons/fi';
+import DownloadMarks from './DownloadMarks';
+import { UserName } from '../../Apis/Islogin';
+import Confetti from 'react-confetti'
+import NotFound from '../../Loaders/NotFound';
+import { useSelector } from 'react-redux';
+function MarksTableSection({ semester, page, Marks }) {
+
+  const data = useSelector((state) => state.section);
+
+
+
+
+
+  const { width, height } = useWindowSize()
+  const getGradeColor = (grade) => {
+    if (grade === 'O') return 'bg-emerald-100 text-emerald-700 border-emerald-200'
+    if (grade === 'A+') return 'bg-blue-100 text-blue-700 border-blue-200'
+    if (grade === 'A') return 'bg-violet-100 text-violet-700 border-violet-200'
+    return 'bg-slate-100 text-slate-700 border-slate-200'
+  }
+
+  const getMarkColor = (marks) => {
+    if (marks >= 90) return 'text-emerald-600'
+    if (marks >= 75) return 'text-blue-600'
+    return 'text-amber-600'
+  }
+
+  const result = Marks?.filter((mrks) => mrks?.totalMarks >= 45)
+
+  const grades = Marks?.reduce((acc, grade,) => {
+    acc[grade.grade] = (acc[grade.grade] || 0) + 1;
+    acc[grade]
+
+    return acc;
+  }, {})
+  const [scroll, setScroll] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScroll(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Set initial value
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [scroll]);
+
+
+
+  const ispassed = result?.length === Marks?.length
+
+  return (
+
+    <>
+
+      <div className="rounded-3xl border border-slate-200 bg-white">
+        {/* Header */}
+        <div className="flex flex-col gap-3 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-slate-800">
+              Subject-wise Marks
+            </h3>
+            <p className="text-sm text-slate-500">
+              Detailed split-up for {data.value}
+            </p>
+          </div>
+
+          <div className="rounded-full bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700">
+            {Marks?.length || 0} Subjects
+          </div>
+        </div>
+
+        {/* ========================= Desktop Table ========================= */}
+        <div className="hidden lg:block">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Code
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Subject
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Internal
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Assignment
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Lab
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Final
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Total
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Grade
+                  </th>
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+
+                {Marks?.length == 0 && <>
+
+
+                  <NotFound message={'No records found'} />
+                </>}
+                {Marks?.map((subject, index) => (
+                  <tr
+                    key={subject?.code}
+                    className={`border-t border-slate-100 ${index % 2 === 0 ? "bg-white" : "bg-slate-50/60"
+                      }`}
+                  >
+                    <td className="px-5 py-4 text-sm font-semibold text-slate-700">
+                      {subject?.subjectid.subjectId}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-700">
+                          {subject?.subjectid.subjectName}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {subject?.type || "Theory"}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4 text-sm font-semibold text-indigo-600">
+                      {subject?.internal}
+                    </td>
+
+                    <td className="px-5 py-4 text-sm font-semibold text-orange-500">
+                      {subject?.assignmentMarks || 0}
+                    </td>
+
+                    <td className="px-5 py-4 text-sm font-semibold text-cyan-600">
+                      {subject?.lab}
+                    </td>
+
+                    <td className="px-5 py-4 text-sm font-semibold text-emerald-600">
+                      {subject?.total}
+                    </td>
+
+                    <td
+                      className={`px-5 py-4 text-sm font-bold ${getMarkColor(
+                        subject?.total
+                      )}`}
+                    >
+                      {subject?.total || 0}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${getGradeColor(
+                          subject?.Grade || "F"
+                        )}`}
+                      >
+                        {subject?.Grade || "F"}
+                      </span>
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {subject?.totalMarks >= 45 ? (
+                        <div className="flex items-center gap-2 font-medium text-green-600">
+                          <CiCircleCheck size={18} />
+                          <span>Passed</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 font-medium text-red-600">
+                          <FiXCircle size={18} />
+                          <span>Failed</span>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ========================= Mobile Table ========================= */}
+        <div className="lg:hidden overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                  Subject
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-slate-500">
+                  Total
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-slate-500">
+                  Grade
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-slate-500">
+                  Status
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {Marks?.map((subject, index) => (
+                <tr
+                  key={subject.code}
+                  className={`border-t ${index % 2 === 0 ? "bg-white" : "bg-slate-50"
+                    }`}
+                >
+                  <td className="px-4 py-3">
+                    <p className="font-semibold text-sm text-slate-700">
+                      {Marks?.name}
+                    </p>
+                    <p className="text-xs text-slate-500">{Marks?.code}</p>
+                  </td>
+
+                  <td
+                    className={`px-4 py-3 text-center font-bold ${getMarkColor(
+                      Marks?.totalMarks
+                    )}`}
+                  >
+                    {Marks?.totalMarks}
+                  </td>
+
+                  <td className="px-4 py-3 text-center">
+                    <span
+                      className={`inline-flex rounded-full border px-2 py-1 text-xs font-bold ${getGradeColor(
+                        Marks?.grade
+                      )}`}
+                    >
+                      {Marks?.grade}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    {Marks?.totalMarks >= 45 ? (
+                      <div className="flex justify-center text-green-600">
+                        <CiCircleCheck size={20} /> <span>Passed</span>
+                      </div>
+                    ) : (
+                      <div className="flex justify-center text-red-600">
+                        <FiXCircle size={20} />  <span>Failed</span>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {Marks?.length >= 1 &&
+        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          {/* Result Status */}
+
+
+
+
+
+          {ispassed ? (
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-100">
+                <CiCircleCheck className="text-green-600" size={24} />
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-green-800">
+                  Congratulations!
+                </h4>
+                <p className="text-sm text-slate-600">
+                  You have passed all subjects successfully.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100">
+                <FiXCircle className="text-red-600" size={22} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-red-800">
+                  Better Luck Next Time
+                </h4>
+                <p className="text-sm text-slate-600">
+                  You have failed in{" "}
+                  <span className="font-semibold text-red-600">
+                    {Marks.length - result.length}
+                  </span>{" "}
+                  {Marks.length - result.length === 1 ? "subject" : "subjects"}.
+                </p>
+              </div>
+            </div>
+          )}
+
+
+
+
+          < div className="flex justify-start lg:justify-end">
+            <DownloadMarks
+              filename={`${UserName.name || "Name"}-${UserName.Student_ID || "ID"}`}
+              data={Marks}
+            />
+          </div>
+
+        </div >}
+
+
+      <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">
+              Grade Summary
+            </h3>
+            <p className="text-xs text-slate-500">
+              Overall distribution of grades for this student
+            </p>
+          </div>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          {/* O */}
+          <div className="group relative overflow-hidden rounded-2xl bg-emerald-50 px-4 py-3 shadow-xs border border-emerald-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-emerald-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-emerald-800">
+                    O Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-emerald-700/80">
+                  Outstanding
+                </p>
+              </div>
+              <span className="text-xl font-bold text-emerald-800">
+                {/* {grades["O"] || 0} */}
+                Grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-emerald-100/70 blur-xl group-hover:bg-emerald-200/80 transition-colors" />
+          </div>
+
+          {/* A+ */}
+          <div className="group relative overflow-hidden rounded-2xl bg-green-50 px-4 py-3 shadow-xs border border-green-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-green-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-green-800">
+                    A+ Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-green-700/80">
+                  Excellent
+                </p>
+              </div>
+              <span className="text-xl font-bold text-green-800">
+                {/* {grades["A+"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-green-100/70 blur-xl group-hover:bg-green-200/80 transition-colors" />
+          </div>
+
+          {/* A */}
+          <div className="group relative overflow-hidden rounded-2xl bg-lime-50 px-4 py-3 shadow-xs border border-lime-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-lime-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-lime-800">
+                    A Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-lime-700/80">
+                  Very good
+                </p>
+              </div>
+              <span className="text-xl font-bold text-lime-800">
+                {/* {grades["A"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-lime-100/70 blur-xl group-hover:bg-lime-200/80 transition-colors" />
+          </div>
+
+          {/* B+ */}
+          <div className="group relative overflow-hidden rounded-2xl bg-blue-50 px-4 py-3 shadow-xs border border-blue-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-blue-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-blue-800">
+                    B+ Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-blue-700/80">
+                  Above average
+                </p>
+              </div>
+              <span className="text-xl font-bold text-blue-800">
+                {/* {grades["B+"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-blue-100/70 blur-xl group-hover:bg-blue-200/80 transition-colors" />
+          </div>
+
+          {/* B */}
+          <div className="group relative overflow-hidden rounded-2xl bg-sky-50 px-4 py-3 shadow-xs border border-sky-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-sky-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-sky-800">
+                    B Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-sky-700/80">
+                  Average
+                </p>
+              </div>
+              <span className="text-xl font-bold text-sky-800">
+                {/* {grades["B"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-sky-100/70 blur-xl group-hover:bg-sky-200/80 transition-colors" />
+          </div>
+
+          {/* C+ */}
+          <div className="group relative overflow-hidden rounded-2xl bg-yellow-50 px-4 py-3 shadow-xs border border-yellow-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-yellow-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-yellow-800">
+                    C+ Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-yellow-700/80">
+                  Below average
+                </p>
+              </div>
+              <span className="text-xl font-bold text-yellow-800">
+                {/* {grades["C+"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-yellow-100/70 blur-xl group-hover:bg-yellow-200/80 transition-colors" />
+          </div>
+
+          {/* C */}
+          <div className="group relative overflow-hidden rounded-2xl bg-orange-50 px-4 py-3 shadow-xs border border-orange-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-orange-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-orange-800">
+                    C Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-orange-700/80">
+                  Needs improvement
+                </p>
+              </div>
+              <span className="text-xl font-bold text-orange-800">
+                {/* {grades["C"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-orange-100/70 blur-xl group-hover:bg-orange-200/80 transition-colors" />
+          </div>
+
+          {/* P */}
+          <div className="group relative overflow-hidden rounded-2xl bg-purple-50 px-4 py-3 shadow-xs border border-purple-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-purple-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-purple-800">
+                    P Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-purple-700/80">
+                  Pass
+                </p>
+              </div>
+              <span className="text-xl font-bold text-purple-800">
+                {/* {grades["P"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-purple-100/70 blur-xl group-hover:bg-purple-200/80 transition-colors" />
+          </div>
+
+          {/* F */}
+          <div className="group relative overflow-hidden rounded-2xl bg-red-50 px-4 py-3 shadow-xs border border-red-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-red-100/80 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-red-800">
+                    F Grade
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-red-700/80">
+                  Fail
+                </p>
+              </div>
+              <span className="text-xl font-bold text-red-800">
+                {/* {grades["F"] || 0} */}
+                grade
+              </span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 h-16 w-16 rounded-full bg-red-100/70 blur-xl group-hover:bg-red-200/80 transition-colors" />
+          </div>
+        </div>
+      </div>
+
+      {
+        page == 'child' && ispassed && scroll >= 400 &&
+        <Confetti
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={300}
+          recycle={false}
+        />
+      }
+    </>
+
+  )
+}
+
+export default MarksTableSection
